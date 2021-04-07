@@ -2,16 +2,16 @@
 # LICENSE UPL 1.0
 #
 # Copyright (c) 1982-2016 Oracle and/or its affiliates. All rights reserved.
-# 
+#
 # Since: November, 2016
 # Author: gerald.venzl@oracle.com
 # Description: Creates an Oracle Database based on following parameters:
 #              $ORACLE_SID: The Oracle SID and CDB name
 #              $ORACLE_PDB: The PDB name
 #              $ORACLE_PWD: The Oracle password
-# 
+#
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
+#
 
 set -e
 
@@ -46,13 +46,13 @@ mkdir -p $ORACLE_HOME/network/admin
 echo "NAME.DIRECTORY_PATH= (TNSNAMES, EZCONNECT, HOSTNAME)" > $ORACLE_HOME/network/admin/sqlnet.ora
 
 # Listener.ora
-echo "LISTENER = 
-(DESCRIPTION_LIST = 
-  (DESCRIPTION = 
-    (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1)) 
-    (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521)) 
-  ) 
-) 
+echo "LISTENER =
+(DESCRIPTION_LIST =
+  (DESCRIPTION =
+    (ADDRESS = (PROTOCOL = IPC)(KEY = EXTPROC1))
+    (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))
+  )
+)
 
 DEDICATED_THROUGH_BROKER_LISTENER=ON
 DIAG_ADR_ENABLED = off
@@ -65,8 +65,8 @@ dbca -silent -createDatabase -responseFile $ORACLE_BASE/dbca.rsp ||
  cat /opt/oracle/cfgtoollogs/dbca/$ORACLE_SID.log
 
 echo "$ORACLE_SID=localhost:1521/$ORACLE_SID" > $ORACLE_HOME/network/admin/tnsnames.ora
-echo "$ORACLE_PDB= 
-  (DESCRIPTION = 
+echo "$ORACLE_PDB=
+  (DESCRIPTION =
     (ADDRESS = (PROTOCOL = TCP)(HOST = 0.0.0.0)(PORT = 1521))
     (CONNECT_DATA =
       (SERVER = DEDICATED)

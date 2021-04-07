@@ -6,9 +6,9 @@
 # Since: December, 2016
 # Author: gerald.venzl@oracle.com
 # Description: Sets up the unix environment for DB installation.
-# 
+#
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
+#
 
 # Setup filesystem and oracle user
 # Adjust file permissions, go to /opt/oracle as user 'oracle' to proceed with Oracle installation

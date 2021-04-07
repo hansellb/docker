@@ -2,8 +2,8 @@ version: '2.4'
 services:
   oracledb:
     build:
-      context: ./docker/oracledb
-      dockerfile: Dockerfile-oracledb-19c
+      context: ./docker/oracledb/12.2.0.1
+      dockerfile: Dockerfile
       args:
         DB_EDITION: ee
     image: oracledb

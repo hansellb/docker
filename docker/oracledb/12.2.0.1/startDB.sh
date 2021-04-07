@@ -7,9 +7,9 @@
 # Author: gerald.venzl@oracle.com
 # Description: Starts the Listener and Oracle Database.
 #              The ORACLE_HOME and the PATH has to be set.
-# 
+#
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
+#
 
 # Check that ORACLE_HOME is set
 if [ "$ORACLE_HOME" == "" ]; then

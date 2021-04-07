@@ -6,9 +6,9 @@
 # Since: December, 2016
 # Author: gerald.venzl@oracle.com
 # Description: Sets up the unix environment for DB installation.
-# 
+#
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
+#
 
 # Convert $1 into upper case via "^^" (bash version 4 onwards)
 EDITION=${1^^}

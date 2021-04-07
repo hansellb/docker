@@ -3,8 +3,8 @@ services:
   sonarqube:
     build:
       context: ./docker/sonarqube
-      dockerfile: Dockerfile-sonarqube
-    image: sonarqube:7.9.3
+      dockerfile: Dockerfile
+    image: sonarqube:5.2
     container_name: sonarqube
     ports:
       - "9000:9000"

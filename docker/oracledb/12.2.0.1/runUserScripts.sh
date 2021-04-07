@@ -6,9 +6,9 @@
 # Since: July, 2017
 # Author: gerald.venzl@oracle.com
 # Description: Runs user shell and SQL scripts
-# 
+#
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
+#
 
 SCRIPTS_ROOT="$1";
 
@@ -32,7 +32,7 @@ if [ -d "$SCRIPTS_ROOT" ] && [ -n "$(ls -A $SCRIPTS_ROOT)" ]; then
       esac
       echo "";
   done
-  
+
   echo "DONE: Executing user defined scripts"
   echo "";
 
