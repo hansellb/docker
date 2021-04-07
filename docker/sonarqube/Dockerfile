@@ -29,6 +29,7 @@ RUN groupadd -r sonarqube && useradd -r -g sonarqube sonarqube
 #    done
 
 COPY sonarqube-${SONAR_VERSION}.zip /opt/sonarqube.zip
+COPY --chown=sonarqube:sonarqube ./plugins /tmp/plugins
 
 SHELL ["/bin/bash", "-c"]
 
@@ -41,7 +42,10 @@ RUN set -x \
     && mv sonarqube-$SONAR_VERSION sonarqube \
     && chown -R sonarqube:sonarqube sonarqube \
     && rm sonarqube.zip* \
-    && rm -rf $SONARQUBE_HOME/bin/*
+    && rm -rf $SONARQUBE_HOME/bin/* \
+    && cp $SONARQUBE_HOME/lib/bundled-plugins/* $SONARQUBE_HOME/extensions/plugins \
+    && cp /tmp/plugins/*.jar $SONARQUBE_HOME/extensions/plugins \
+    && rm -rf /tmp/plugins
 
 VOLUME "$SONARQUBE_HOME/data"
 
