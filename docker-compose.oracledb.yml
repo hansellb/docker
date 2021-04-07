@@ -1,0 +1,22 @@
+version: '2.4'
+services:
+  oracledb:
+    build:
+      context: ./docker/oracledb
+      dockerfile: Dockerfile-oracledb-19c
+      args:
+        DB_EDITION: ee
+    image: oracledb
+    container_name: oracledb
+    hostname: localhost
+    cpu_count: 2
+    cpus: 0.5
+    mem_limit: 4G
+    mem_reservation: 2560M
+    ports:
+      - "1522:1521"
+    environment:
+      ORACLE_PWD: pass
+      ORACLE_SID: oracle
+    volumes:
+      - ./docker/data/oracledb:/opt/oracle/oradata
