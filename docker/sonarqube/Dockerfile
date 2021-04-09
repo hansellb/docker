@@ -5,7 +5,8 @@ RUN apt-get update \
     && apt-get install -y curl gnupg2 unzip \
     && rm -rf /var/lib/apt/lists/*
 
-ENV SONAR_VERSION=5.2 \
+# ENV SONARQUBE_VERSION=7.9.3 \
+ENV SONARQUBE_VERSION=5.2 \
     SONARQUBE_HOME=/opt/sonarqube \
     SONARQUBE_JDBC_USERNAME=sonar \
     SONARQUBE_JDBC_PASSWORD=sonar \
@@ -28,18 +29,18 @@ RUN groupadd -r sonarqube && useradd -r -g sonarqube sonarqube
 #        gpg --batch --keyserver "$server" --recv-keys F1182E81C792928921DBCAB4CFCA4A29D26468DE && break || : ; \
 #    done
 
-COPY sonarqube-${SONAR_VERSION}.zip /opt/sonarqube.zip
+COPY sonarqube-${SONARQUBE_VERSION}.zip /opt/sonarqube.zip
 COPY --chown=sonarqube:sonarqube ./plugins /tmp/plugins
 
 SHELL ["/bin/bash", "-c"]
 
 RUN set -x \
     && cd /opt \
-#    && curl -o sonarqube.zip -fSL https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip \
-#    && curl -o sonarqube.zip.asc -fSL https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONAR_VERSION.zip.asc \
+#    && curl -o sonarqube.zip -fSL https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONARQUBE_VERSION.zip \
+#    && curl -o sonarqube.zip.asc -fSL https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-$SONARQUBE_VERSION.zip.asc \
 #    && gpg --batch --verify sonarqube.zip.asc sonarqube.zip \
     && unzip -q sonarqube.zip \
-    && mv sonarqube-$SONAR_VERSION sonarqube \
+    && mv sonarqube-$SONARQUBE_VERSION sonarqube \
     && chown -R sonarqube:sonarqube sonarqube \
     && rm sonarqube.zip* \
     && rm -rf $SONARQUBE_HOME/bin/* \
