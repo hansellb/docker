@@ -1,7 +1,9 @@
 # https://stackoverflow.com/questions/7229885/what-are-the-differences-between-gitignore-and-gitkeep/11579945#11579945
 # Ignore all files in this dir...
 #*
+
+# Ignore all LOG files
 *.log
 
-# ... except for this one.
-!.gitignore
+# ... except for this one/these ones.
+# !.gitignore # Not needed according to https://github.com/h5bp/html5-boilerplate/commit/875df4e9b598b869e52bd081a080419d30913930
