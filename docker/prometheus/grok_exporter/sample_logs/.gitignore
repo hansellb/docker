@@ -4,6 +4,7 @@
 
 # Ignore all LOG files
 *.log
+*.txt
 
 # ... except for this one/these ones.
 # !.gitignore # Not needed according to https://github.com/h5bp/html5-boilerplate/commit/875df4e9b598b869e52bd081a080419d30913930
