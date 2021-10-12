@@ -1,0 +1,43 @@
+global:
+    config_version: 2 # https://github.com/fstab/grok_exporter/blob/v0.2.8/CONFIG.md
+input:
+    type: file
+    path: ./sample_logs/F2E_ActivityStatusLog.arrangements.log
+    readall: true # Read from the beginning of the file? False means we start at the end of the file and read only new lines.
+    fail_on_missing_logfile: false # Default true: grok_exporter will not start if the path is not found
+#    poll_interval_seconds: 5 # The internal implementation of grok_exporter's file input is based on the operating system's file system notification mechanism, which is inotify on Linux, kevent on BSD (or macOS), and ReadDirectoryChangesW on Windows. These tools will inform grok_exporter as soon as a new log line is written to the log file, and let grok_exporter sleep as long as the log file doesn't change. There is no need for configuring a poll interval.
+grok:
+    patterns_dir: ./patterns
+    additional_patterns:
+#    - 'F2E_ACTIVITY_STATUS_LOG %{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+        - 'F2E_TRACEABILITY %{NOTSPACE}'
+        - 'F2E_MESSAGE_ID (%{NUMBER}|%{UUID})'
+        - 'F2E_PERSON_ID %{NUMBER}'
+        - 'F2E_MEASURE_TYPE %{NUMBER}'
+        - 'F2E_STATUS_LOG_EVENT_TYPE %{WORD}'
+        - 'F2E_SERVICE_NAME %{NOTSPACE}'
+        - 'F2E_TOTAL_TIME %{NUMBER}'
+        - 'F2E_CHANNEL %{NUMBER}'
+        - 'F2E_BON_ID %{NOTSPACE}'
+metrics:
+    - type: counter
+      name: f2e_activity_records_total
+      help: Total number of rejected recipients, partitioned by error message.
+      match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+      labels:
+          app: arrangements
+          bon_id: '{{.bonId}}'
+          channel: '{{.channel}}'
+          event_status: '{{.eventStatus}}'
+          log_level: '{{.logLevel}}'
+          measure_type: '{{.measureType}}'
+          messageId: '{{.messageId}}'
+          personId: '{{.personId}}'
+          service_name: '{{.serviceName}}'
+server:
+#    cert: /path/to/cert # If omitted, a hard-coded default certificate will be used.
+#    key: /path/to/key # If omitted, a hard-coded default key will be used.
+#    host: localhost # If host is omitted, grok_exporter will listen on all available network interfaces
+    path: / # Default is /metrics
+    port: 10135 # Default TCP port is 9144
+#    protocol: https # Default is http

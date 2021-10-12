@@ -1,0 +1,15 @@
+version: '2.4'
+services:
+  prometheus_grok_exporter:
+    build:
+      context: ./docker/prometheus/grok_exporter
+      dockerfile: Dockerfile
+    image: prometheus_grok_exporter:0.2.8
+    container_name: grok_exporter
+    ports:
+      - "10135:10135"
+    volumes:
+#      - ./docker/data/prometheus:/opt/prometheus
+      - ./docker/prometheus/grok_exporter/config_v2.yml:/opt/prometheus/grok_exporter/config.yml
+#      - ./docker/prometheus/grok_exporter/F2E_ActivityStatusLog_pattern:/opt/prometheus/grok_exporter/patterns/ing_f2e
+      - ./docker/prometheus/grok_exporter/sample_logs:/opt/prometheus/grok_exporter/sample_logs

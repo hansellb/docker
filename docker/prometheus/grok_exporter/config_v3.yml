@@ -1,0 +1,29 @@
+# NOTE: version 3 is ONLY supported in grok_exporter versions >= 1.0.0.RC3
+global:
+  config_version: 3
+input:
+  type: file
+  path: ./example/F2E_ActivityStatusLog.log
+  readall: true # Read from the beginning of the file? False means we start at the end of the file and read only new lines.
+imports:
+  - type: grok_patterns
+    dir: ./patterns
+# grok_patterns:
+#   - 'F2E_ACTIVITY_STATUS_LOG %{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+metrics:
+  - type: counter
+    name: f2e_activity_status_events_total
+    help: Total number of log events produced by an F2E, partitioned by bonId, channel, eventStatus, logLevel, measureType, messageId, personId and serviceName.
+    match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+    labels:
+      bon_id: '{{.bonId}}'
+      channel: '{{.channel}}'
+      event_status: '{{.eventStatus}}'
+      log_level: '{{.logLevel}}'
+      measure_type: '{{.measureType}}'
+      messageId: '{{.messageId}}'
+      personId: '{{.personId}}'
+      service_name: '{{.serviceName}}'
+server:
+  host: localhost
+  port: 10080
