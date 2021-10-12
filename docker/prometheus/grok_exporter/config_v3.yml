@@ -1,29 +1,54 @@
-# NOTE: version 3 is ONLY supported in grok_exporter versions >= 1.0.0.RC3
 global:
-  config_version: 3
+  config_version: 3 # https://github.com/fstab/grok_exporter/blob/v1.0.0.RC5/CONFIG.md
+
 input:
   type: file
-  path: ./example/F2E_ActivityStatusLog.log
+  # path and paths are both valid
+#  path: ./sample_logs/F2E_ActivityStatusLog.arrangements.log
+  paths:
+    - ./sample_logs/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
   readall: true # Read from the beginning of the file? False means we start at the end of the file and read only new lines.
+  fail_on_missing_logfile: false # Default true: grok_exporter will not start if the path is not found
+#  poll_interval_seconds: 5 # The internal implementation of grok_exporter's file input is based on the operating system's file system notification mechanism, which is inotify on Linux, kevent on BSD (or macOS), and ReadDirectoryChangesW on Windows. These tools will inform grok_exporter as soon as a new log line is written to the log file, and let grok_exporter sleep as long as the log file doesn't change. There is no need for configuring a poll interval.
+
 imports:
   - type: grok_patterns
     dir: ./patterns
-# grok_patterns:
-#   - 'F2E_ACTIVITY_STATUS_LOG %{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+
+grok_patterns:
+  - 'F2E_TRACEABILITY %{NOTSPACE}'
+  - 'F2E_MESSAGE_ID %{NOTSPACE}'
+  - 'F2E_PERSON_ID %{NUMBER}'
+  - 'F2E_MEASURE_TYPE %{NUMBER}'
+  - 'F2E_STATUS_LOG_EVENT_TYPE %{WORD}'
+  - 'F2E_SERVICE_NAME %{NOTSPACE}'
+  - 'F2E_TOTAL_TIME %{NUMBER}'
+  - 'F2E_CHANNEL %{NUMBER}'
+  - 'F2E_BON_ID %{NOTSPACE}'
+
 metrics:
-  - type: counter
-    name: f2e_activity_status_events_total
-    help: Total number of log events produced by an F2E, partitioned by bonId, channel, eventStatus, logLevel, measureType, messageId, personId and serviceName.
-    match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
-    labels:
-      bon_id: '{{.bonId}}'
-      channel: '{{.channel}}'
-      event_status: '{{.eventStatus}}'
-      log_level: '{{.logLevel}}'
-      measure_type: '{{.measureType}}'
-      messageId: '{{.messageId}}'
-      personId: '{{.personId}}'
-      service_name: '{{.serviceName}}'
+    - type: counter
+      name: f2e_activity_records_total
+      help: Total number of rejected recipients, partitioned by error message.
+      match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY:traceId} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+      labels: # Labels can be CamelCase or Snake_Case, e.g., [measureType|measure_type]: '{{.measureType}}'. Seems like there is a convention tu use snake case for labels
+          app: '{{gsub .logfile ".*F2E_ActivityStatusLog\\.(.*)\\.log" "\\1"}}'
+          bon_id: '{{.bonId}}'
+          channel: '{{.channel}}'
+          event_status: '{{.eventStatus}}'
+          log_level: '{{.logLevel}}'
+          measure_type: '{{.measureType}}'
+          message_id: '{{.messageId}}'
+          person_id: '{{.personId}}'
+          service_name: '{{.serviceName}}'
+          trace_id: '{{.traceId}}'
+
 server:
-  host: localhost
-  port: 10080
+#  cert: /path/to/cert # If omitted, a hard-coded default certificate will be used.
+#  client_auth: RequireAndVerifyClientCert # Possible values from https://golang.org/pkg/crypto/tls/#ClientAuthType: NoClientCert, RequestClientCert, RequireAnyClientCert, VerifyClientCertIfGiven, and RequireAndVerifyClientCert
+#  client_ca: /path/to/client_ca # If omitted, grok_exporter will not validate client certificates
+#  key: /path/to/key # If omitted, a hard-coded default key will be used.
+#  host: localhost # If host is omitted, grok_exporter will listen on all available network interfaces
+    path: / # Default is /metrics
+    port: 10135 # Default TCP port is 9144
+#  protocol: https # Default is http
