@@ -21,27 +21,29 @@ grok_patterns:
   - 'F2E_PERSON_ID %{NUMBER}'
   - 'F2E_MEASURE_TYPE %{NUMBER}'
   - 'F2E_STATUS_LOG_EVENT_TYPE %{WORD}'
+  - 'F2E_ERROR_TYPE %{WORD}'
   - 'F2E_SERVICE_NAME %{NOTSPACE}'
   - 'F2E_TOTAL_TIME %{NUMBER}'
   - 'F2E_CHANNEL %{NUMBER}'
   - 'F2E_BON_ID %{NOTSPACE}'
 
 metrics:
-    - type: counter
-      name: f2e_activity_records_total
-      help: Total number of rejected recipients, partitioned by error message.
-      match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY:traceId} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
-      labels: # Labels can be CamelCase or Snake_Case, e.g., [measureType|measure_type]: '{{.measureType}}'. Seems like there is a convention tu use snake case for labels
-          app: '{{gsub .logfile ".*F2E_ActivityStatusLog\\.(.*)\\..*log" "\\1"}}'
-          bon_id: '{{.bonId}}'
-          channel: '{{.channel}}'
-          event_status: '{{.eventStatus}}'
-          log_level: '{{.logLevel}}'
-          measure_type: '{{.measureType}}'
-          message_id: '{{.messageId}}'
-          person_id: '{{.personId}}'
-          service_name: '{{.serviceName}}'
-          trace_id: '{{.traceId}}'
+  - type: counter
+    name: f2e_activity_status_records_total
+    help: Total number of lines in F2E_ActivityStatusLog logfile, partitioned by log level, measure type, event status, error type, service name, etc.
+    match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY:traceId} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}(\.%{F2E_ERROR_TYPE:errorType})?\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
+    labels: # Labels can be CamelCase or Snake_Case, e.g., [measureType|measure_type]: '{{.measureType}}'. Seems like there is a convention tu use snake case for labels
+      app: '{{gsub .logfile ".*F2E_ActivityStatusLog\\.(.*)\\..*log" "\\1"}}'
+      bon_id: '{{.bonId}}'
+      channel: '{{.channel}}'
+      error_type: '{{.errorType}}'
+      event_status: '{{.eventStatus}}'
+      log_level: '{{.logLevel}}'
+      measure_type: '{{.measureType}}'
+      message_id: '{{.messageId}}'
+      person_id: '{{.personId}}'
+      service_name: '{{.serviceName}}'
+      trace_id: '{{.traceId}}'
 
 server:
 #  cert: /path/to/cert # If omitted, a hard-coded default certificate will be used.
@@ -49,6 +51,6 @@ server:
 #  client_ca: /path/to/client_ca # If omitted, grok_exporter will not validate client certificates
 #  key: /path/to/key # If omitted, a hard-coded default key will be used.
 #  host: localhost # If host is omitted, grok_exporter will listen on all available network interfaces
-    path: / # Default is /metrics
-    port: 10135 # Default TCP port is 9144
+  path: /grok/metrics # Default is /metrics
+  port: 10197 # Default TCP port is 9144
 #  protocol: https # Default is http

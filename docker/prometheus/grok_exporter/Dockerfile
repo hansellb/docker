@@ -24,7 +24,9 @@ USER prometheus
 RUN wget -O ${PROMETHEUS_HOME}/$GROK_EXPORTER_ZIP $GROK_EXPORTER_DOWNLOAD_URL\
     && cd ${PROMETHEUS_HOME} \
     && unzip ${GROK_EXPORTER_ZIP} \
-    && mv ${GROK_EXPORTER_ZIP%%.zip} grok_exporter
+    && mv ${GROK_EXPORTER_ZIP%%.zip} grok_exporter \
+    && PS1='\w \$ ' \
+    && alias ll='ls -halF'
 
 COPY --chown=prometheus:prometheus ./sample_logs/* "$PROMETHEUS_HOME/sample_logz"
 
