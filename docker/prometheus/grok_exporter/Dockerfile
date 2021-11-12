@@ -28,7 +28,8 @@ RUN wget -O ${PROMETHEUS_HOME}/$GROK_EXPORTER_ZIP $GROK_EXPORTER_DOWNLOAD_URL\
     && PS1='\w \$ ' \
     && alias ll='ls -halF'
 
-COPY --chown=prometheus:prometheus ./sample_logs/* "$PROMETHEUS_HOME/sample_logz"
+# When using COPY with more than one source file, the destination must be a directory and end with a /
+COPY --chown=prometheus:prometheus ./sample_logs/* "$PROMETHEUS_HOME/sample_logz/"
 
 WORKDIR $PROMETHEUS_HOME/grok_exporter
 ENTRYPOINT ["./grok_exporter", "-config", "./config.yml"]
