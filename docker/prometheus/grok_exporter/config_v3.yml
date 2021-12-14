@@ -6,8 +6,14 @@ input:
   # path and paths are both valid
 #  path: ./sample_logs/F2E_ActivityStatusLog.arrangements.log
   paths:
-    - ./sample_logs/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
-    - ./sample_logs/GC.*.log
+    - ./sample_logs/arrangements/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
+    - ./sample_logs/arrangements/GC.*.log
+    - ./sample_logs/budgets/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
+    - ./sample_logs/budgets/GC.*.log
+    - ./sample_logs/etr/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
+    - ./sample_logs/etr/GC.*.log
+    - ./sample_logs/txcat/F2E_ActivityStatusLog.*.log # Wildcards and multiple logs/paths allowed on grok_exporter versions >= 1.0.0.RC1
+    - ./sample_logs/txcat/GC.*.log
   readall: true # Read from the beginning of the file? False means we start at the end of the file and read only new lines.
   fail_on_missing_logfile: false # Default true: grok_exporter will not start if the path is not found
 #  poll_interval_seconds: 5 # The internal implementation of grok_exporter's file input is based on the operating system's file system notification mechanism, which is inotify on Linux, kevent on BSD (or macOS), and ReadDirectoryChangesW on Windows. These tools will inform grok_exporter as soon as a new log line is written to the log file, and let grok_exporter sleep as long as the log file doesn't change. There is no need for configuring a poll interval.
@@ -34,7 +40,7 @@ metrics:
     help: Total number of lines in F2E_ActivityStatusLog logfile, partitioned by log level, measure type, event status, error type, service name, etc.
     match: '%{LOGLEVEL:logLevel}  %{TIMESTAMP_ISO8601} %{F2E_TRACEABILITY:traceId} %{F2E_MESSAGE_ID:messageId}\|%{F2E_PERSON_ID:personId}\|%{F2E_MEASURE_TYPE:measureType}\|%{F2E_STATUS_LOG_EVENT_TYPE:eventStatus}(\.%{F2E_ERROR_TYPE:errorType})?\|%{F2E_SERVICE_NAME:serviceName}\|%{F2E_TOTAL_TIME}\|%{F2E_CHANNEL:channel}\|%{F2E_BON_ID:bonId}'
     labels: # Labels can be CamelCase or Snake_Case, e.g., [measureType|measure_type]: '{{.measureType}}'. Seems like there is a convention tu use snake case for labels
-      # app: '{{gsub .logfile ".*F2E_ActivityStatusLog\\.(.*)\\..*log" "\\1"}}'
+      app: '{{gsub .logfile ".*(arrangements|budgets|etr|txcat).*log" "\\1"}}'
       # bon_id: '{{.bonId}}'
       # channel: '{{.channel}}'
       error_type: '{{.errorType}}'
@@ -43,17 +49,25 @@ metrics:
       measure_type: '{{.measureType}}'
       # message_id: '{{.messageId}}'
       # person_id: '{{.personId}}'
-      service_name: '{{gsub .serviceName "(___V1ID___.*___V1ID___)?(\\?.*)?" ""}}'
+      service_name: '{{gsub .serviceName "(ES[0-9]+)?(___V1ID___.*___V1ID___)?(\\?.*)?" ""}}'
       # trace_id: '{{.traceId}}'
     paths:
-      - ./sample_logs/F2E_ActivityStatusLog.*.log
+      - ./sample_logs/arrangements/F2E_ActivityStatusLog.*.log
+      - ./sample_logs/budgets/F2E_ActivityStatusLog.*.log
+      - ./sample_logs/etr/F2E_ActivityStatusLog.*.log
+      - ./sample_logs/txcat/F2E_ActivityStatusLog.*.log
 
   - type: counter
     name: f2e_fullgc_records_total
     help: Total number of lines in GC logfile, that correspond to a Full GC
     match: 'Full GC'
+    labels:
+      app: '{{gsub .logfile "\\/opt\\/prometheus\\/grok_exporter\\/sample_logs\\/(\\w+)\\/.*" "\\1"}}'
     paths:
-      - ./sample_logs/GC.*.log
+      - ./sample_logs/arrangements/GC.*.log
+      - ./sample_logs/budgets/GC.*.log
+      - ./sample_logs/etr/GC.*.log
+      - ./sample_logs/txcat/GC.*.log
 
 server:
 #  cert: /path/to/cert # If omitted, a hard-coded default certificate will be used.
